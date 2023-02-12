@@ -1,0 +1,22 @@
+{{$root:=.}}
+<form action="/k8s/deployUpdate" method="get" onsubmit="return check('updateDeployment')" >
+    <p style="color:rgb(111, 0, 255)">
+        <font size="4">选择发布的Deployment名字</font>
+    </p>
+    <select name="deploymentName" style="font-size: 22px" >
+        <option></option>
+        {{range $index,$value :=$root.Result.deployinfo}}
+            <option>{{$value.DeploymentName}}</option>
+        {{end}}
+    </select>
+    <p style="color:rgb(111, 0, 255)">
+        <font size="4">输入要发布的镜像地址，如：idaas-admin:v1 </font>
+    </p>
+    <input id="updateDeployment"  type=text name=serviceTag style="color:rgb(111, 0, 255);height:40px;width: 1000px;font-size:20px;" maxlength="50">
+    <p></p>
+    <input type="text" name="routingKey"  value="{{$root.Env.ActionRoutingKey}}" style="display:none">
+    <input type="text" name="namespace"  value="{{$root.Env.Namespace}}" style="display:none">
+    <input type="text" name="timeout"  value=30 style="display:none">
+    <input type="text" name="destRepo"  value={{$root.Env.Name}} style="display:none">
+    <input type="submit"   value="部署">
+</form>

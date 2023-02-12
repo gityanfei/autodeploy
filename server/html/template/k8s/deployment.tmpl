@@ -1,0 +1,33 @@
+{{$root:=.}}
+<table border="1" cellspacing="0" cellpadding="5" align="center" width="100%">
+    <tr bgcolor="skyblue">
+        <th>序号</th>
+        <th>命名空间</th>
+        <th>Deployment</th>
+        <th>副本数</th>
+        <th>存活数</th>
+        <th>镜像地址</th>
+        <th>设置副本数</th>
+    </tr>
+    {{range $index,$value :=.Result.deployinfo}}
+        <colgroup span="1" bgcolor="lightyellow"></colgroup>
+        <tr>
+            <td>{{$index}}</td>
+            <td>{{$value.Namespace}}</td>
+            <td>{{$value.DeploymentName}}</td>
+            <td>{{$value.Replicas}}</td>
+            <td>{{$value.AvailableReplicas}}</td>
+            <td>{{$value.Image}}</td>
+            <td style="text-align:left;">
+                <form   action="/k8s/scaleDeployment" method="get" onsubmit="return checkReplicas('deploymentReplicas','{{- $index -}}')">
+                    <input type="text" id="deploymentReplicas_{{- $index -}}" name="deploymentReplicas" style="color:rgb(255,0,0);height:35px;width: 80px;font-size:18px;" maxlength="1">
+                    <input type="text" name="routingKey"  value="{{$root.Env.ActionRoutingKey}}" style="display:none">
+                    <input type=text name=namespace value={{$value.Namespace}} style="display:none" >
+                    <input type=text name=deploymentName value={{$value.DeploymentName}} style="display:none" >
+                    <input type=text name=timeout value="3" style="display:none" >
+                    <input type="submit" title="设置为0这个服务会停止掉，请谨慎"   value="设置">
+                </form>
+            </td>
+        </tr>
+    {{end}}
+</table>

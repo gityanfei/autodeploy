@@ -1,0 +1,31 @@
+{{$root:=.}}
+
+<form action="/docker/updateDockerTerminal" method="get" onsubmit="return check('deploymentServiceTag')">
+    <p style="color:rgb(111, 0, 255)">
+        <font size="4">输入要发布镜像地址，如：id-sync:v5-hksw-ms-feature-14</font>
+    </p>
+    <p style="color:rgb(255,0,0)">
+        <font size="2">{{$root.Env.Desc}}实际部署的镜像为：{{$root.Env.Repo}}id-sync:v5-hksw-ms-feature-14</font>
+    </p>
+    <input id="deploymentServiceTag" type=text name=serviceTag style="color:rgb(111, 0, 255);height:40px;width: 1000px;font-size:20px;" maxlength="50"></p>
+    <p style="color:rgb(111, 0, 255)">
+        <font size="4">除了需要特殊发布apigateway和idaas-pc-pdp-lite之外不需要勾选IP地址</font>
+    </p>
+    <p style="color:rgb(255,0,0)">
+        <font size="2">部署IP可以不用选择，部署脚本会根据服务名自动部署的到对应服务器IP，但是项目上可能存在一个服务会部署在多台服务器服务器上,需要特殊的部署</font></br>
+        <font size="2">如：再发布idaas-pc-pap-lite时，如果需要默认部署，则不需要勾选IP地址会自动发布到237上，如果需要升级238上的服务则需要选择部署的IP</font></br>
+        <font size="2">如：再发布gateway_service时，如果需要默认部署，则不需要勾选IP地址会自动发布到237上，如果需要升级236上的服务则需要选择部署的IP</font></br>
+        <font size="2">发布其他的服务时都不用勾选部署IP否则会使用错误的参数启动，导致部署失败</font></br>
+
+    </p>
+    <select name="deploymentIp" style="font-size: 22px" >
+        <option></option>
+        {{range $k,$v:=$root.Env.DeploymentIP}}
+            <option>{{$v}}</option>
+        {{end}}
+    </select>
+    <input type="text" name="actionRoutingKey"  value="{{$root.Env.ActionRoutingKey}}" style="display:none">
+    <input type="text" name="timeout"  value=120 style="display:none">
+    <input type="text" name="destRepo"  value={{$root.Env.Name}} style="display:none">
+    <input type="submit" style='font-size:18px;color:rgb(111, 0, 255)' value="部署" title="">
+</form>

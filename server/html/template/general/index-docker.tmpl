@@ -1,0 +1,14 @@
+{{template "head.tmpl" .}}
+{{$root := .}}
+<h1>{{$root.Env.Desc}}</h1>
+<style type="text/css">
+    p input {
+        width: 10000px;
+        height: 400px;
+    }
+</style>
+
+{{template "imagePush.tmpl" .}}
+{{template "updateDocker.tmpl" .}}
+{{template "dockerps.tmpl" .}}
+{{template "footer.tmpl"}}

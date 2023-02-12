@@ -1,0 +1,17 @@
+{{template "head.tmpl" .}}
+    {{$root := .}}
+    <h1>{{$root.Env.Desc}}</h1>
+    {{template "imagePush.tmpl" .}}
+    {{template "updateDeployment.tmpl" .}}
+    {{$code :="000000"}}
+    {{if  eq .Code $code}}
+        <h1>{{.Env.Desc}}Deployment情况</h1>
+        {{template "deployment.tmpl" .}}
+        <h1>{{.Env.Desc}}Pod情况</h1>
+        {{template "podInfo.tmpl" .}}
+    {{else}}
+        <h4>错误代码为：{{.Code}}</h4>
+        <h4>错误描述为：{{.Desc}}</h4>
+        <h4>错误具体描述为：{{.Result.error|println}}</h4>
+    {{end}}
+{{template "footer.tmpl"}}

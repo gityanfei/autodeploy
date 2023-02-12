@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta http-equiv="Content-Type" content="text/html;charset=utf-8">
+    <link rel="stylesheet" href="/static/css/xterm.css" />
+    <link rel="stylesheet" href="/static/css/bootstrap.min.css" />
+    <script src="/static/js/xterm.js"></script>
+    <script src="/static/js/jquery.min.js"></script>
+    <script src="/static/js/bootstrap.min.js"></script>
+    <style>
+        body {
+            color: #111;
+            margin: 20px;
+            /*white-space: pre;*/
+
+        }
+
+        #terminal {
+            margin: 0 auto;
+        }
+        #connect {
+            margin: 0 auto;
+        }
+        #terminal a {
+            color: #fff;
+        }
+        .panel-body{
+            background-color: #000;
+        }
+        .xterm-rows {
+            color: #00ff00;
+        }
+    </style>
+</head>
+<!--<body>-->
+<!--<body style="border-width: 0px;margin:0px">-->
+<body style="border-width: 0px;margin:0px ;">
+<div id="log-container" style="border-width: 0px;margin:0px; background-color: #ffffff;color: #000000;overflow-y: scroll;padding: 0px; white-space: pre; white-space: pre-wrap; white-space: -moz-pre-wrap;  white-space: -o-pre-wrap; word-wrap: break-word;" >
+    <!--<div id="log-container" style="border-width: 0px;margin:0px; background-color: #ffffff;color: #000000;overflow-y: scroll;padding: 0px; white-space: pre; word-break:break-all" >-->
+    <div></div>
+</div>
+<script>
+    $(document).ready(function(){
+        openTerminal();
+    });
+
+    console.log("宽度为：",document.documentElement.clientWidth)
+    console.log("高度为：",document.documentElement.clientHeight)
+    // cols=parseInt(document.documentElement.clientWidth /9)
+    // rows=parseInt(document.documentElement.clientHeight  / 20)
+
+    var  cols=parseInt(document.documentElement.clientWidth /9)
+    var rows=parseInt(document.documentElement.clientHeight  / 20)
+    console.log("第一次获取的终端行数和列数",rows,cols)
+
+    function openTerminal() {
+        // 连接websocket
+        const localurl = window.location.href.split('/')[2];
+        const fullURL = "ws://" + localurl + "/docker/updateDocker?namespace={{.Namespace}}&podName={{.PodName}}&containerName={{.ContainerName}}&actionRoutingKey={{.ActionRoutingKey}}&serviceTag={{.ServiceTag}}&deploymentIp={{.DeploymentIp}}&rows=" + rows + "&cols=" + cols;
+        console.log("Socket URL: ",fullURL)
+        const ws = new WebSocket(fullURL);
+
+        ws.onopen = function(event) {
+            // resize(term)
+            // term.write("连接成功.......\r\n")
+            console.log("onopen")
+        }
+        ws.onclose = function(event) {
+            // term.write("\r\n连接断开.......\r\n")
+            console.log("onclose")
+        }
+        ws.onmessage = function(event) {
+            const content = event.data;
+            if  (content.length >0) {
+                $("#log-container div").append(content);
+            }
+            // $("#log-container").scrollTop($("#log-container div").height() - $("#log-container").height());
+            /*滚动到底部*/
+            $('html, body').animate({ scrollTop: $(document).height() }, 15);
+        }
+        ws.onerror = function(event) {
+            console.log("onerror")
+        }
+
+        // 当向web终端敲入字符时候的将输入的内容通过websocket发送到服务端
+        ws.on('data', function(input) {
+            // 写给服务端, 由服务端发给container
+            var msg = {type: "input", input: input}
+            console.log("发送给服务器的数据为：",JSON.stringify(msg))
+            // ws.send(JSON.stringify(msg))
+        })
+    }
+</script>
+</body>
+</html>

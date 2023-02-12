@@ -1,0 +1,14 @@
+{{$root := .}}
+<form action="/docker/pushImage" method="get" onsubmit="return check('imagePush')" >
+    <p style="color:rgb(111, 0, 255)">
+        <font size="4">请输入要推送的镜像地址，如：id-sync:v5-hksw-ms-feature-14</font>
+    </p>
+    <p style="color:rgb(255,0,0)">
+        会将10.0.1.170:5000/idaas/id-sync:v5-hksw-ms-feature-14推送到{{$root.Env.Repo}}
+    </p>
+    <input type=text  id="imagePush" name=serviceTag style="color:rgb(111, 0, 255);height:40px;width: 1000px;font-size:18px;" maxlength="50">
+    <input type="text" name="srcName"  value="idaas" style="display:none">
+    <input type="text" name="destName"  value="{{$root.Env.Name}}" style="display:none">
+    <p></p>
+    <input type="submit"   value="推送镜像">
+</form>

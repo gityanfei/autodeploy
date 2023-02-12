@@ -1,0 +1,49 @@
+env: test
+log:
+  mode: info
+  logconfig:
+    level: "debug"
+    filename: "./app.log"
+    maxsize: 200
+    maxage: 7
+    maxbackups: 10
+
+# agent中的服务部署方式伟k8s或docker
+deploymentType: "k8s"
+#deploymentType: "docker"
+rabbitmq:
+  #连接Rabbitmq的连接信息
+  user:
+  password:
+  hostPort:
+  #定义exchange名，这个名字需要和server端一致，不然接收不到消息
+  exchange: notice-exchange
+  #执行动作的routingkey
+  actionRoutingKey: test-action-routingkey
+  #接收日志的routingkey
+  logRoutingKey: test-log-routingkey
+  #定义监听执行动作的queue名字
+  actionQueueName: test-deployment-queue
+  logQueueName: test-log-queue
+  timeout: 3
+
+actionList:
+  GetK8sDeployment: true
+  GetK8sPod: true
+  GetDockerContainers: true
+k8sConfig:
+  namespace: idaas
+  configPath: "./config/1.config"
+  # 配置只需要显示的的deployment名
+  containerDeployment:
+  - test-dp
+
+  destImageInfo:
+    domain:
+    dockerRepo:
+    user:
+    password:
+shellScripts:
+  - name: test
+#    path: ./scripts/sw-deploy.sh
+    path: ./scripts/test.sh

@@ -1,0 +1,127 @@
+{{$root:=.}}
+{{/*{{.Result.podinfo|print}}*/}}
+
+<table border="1" cellspacing="0" cellpadding="5" align="center" width="100%">
+    <tr bgcolor="skyblue">
+        <th>序号</th>
+        <th>Deploy</th>
+        <th>RS</th>
+        <th>pod名称</th>
+        <th>pod状态</th>
+        <th>POD创建时间</th>
+        <th>POD操作</th>
+        <th>容器名</th>
+        <th>容器就绪</th>
+        <th>容器重启次数</th>
+        <th>容器操作</th>
+    </tr>
+
+    {{range $deploymentIndex,$deployment :=.Result.podinfo}}
+    <tr>
+                    {{$rsCountTotal:=len $deployment.ReplicaSet}}
+                    <colgroup span="1" bgcolor="lightyellow"></colgroup>
+                    <td rowspan={{$deployment.UnitCount}}>{{$deploymentIndex}}</td>
+                    <td rowspan={{$deployment.UnitCount}}>{{$deployment.DeploymentName}}</td>
+        {{if ne $rsCountTotal 0}}
+                {{range $RSIndex,$RS:=$deployment.ReplicaSet}}
+                            {{$podCountTotal:=len $RS.Pods}}
+                            {{$countPod:=0}}
+                            <td rowspan={{$RS.ContainerCount}}>{{$RS.ReplicaSetName}}</td>
+                        {{range $podIndex,$Pod :=$RS.Pods}}
+                            {{$countPod:=$podIndex}}
+                            {{$containerCountTotal:=len $Pod.Containers}}
+
+                            {{if ne $containerCountTotal 0}}
+                                <td rowspan={{$containerCountTotal}}>{{$Pod.PodName}}</td>
+                                <td rowspan={{$containerCountTotal}}>{{$Pod.PodStatus}}</td>
+                                <td rowspan={{$containerCountTotal}}>{{$Pod.PodCreateTime}}</td>
+{{/*                                <td style="text-align: center;"rowspan={{$containerCountTotal}}>*/}}
+                                <td style="text-align:left;"rowspan={{$containerCountTotal}}>
+                                    <form action="/k8s/podDelete" method="get" >
+                                        <input type="text" name="routingKey"  value="{{$root.Env.ActionRoutingKey}}" style="display:none">
+                                        <input type=text name=namespace value="{{$Pod.PodNamespace}}" style="display:none" >
+                                        <input type=text name=podName value={{$Pod.PodName}} style="display:none" >
+                                        <input type=text name=timeout value="3" style="display:none" >
+                                        <input type="submit" title="不用担心，删除pod后会Deployment会自动拉起一个新pod"   value="删除pod">
+                                    </form>
+                                </td>
+
+                                {{range $ContainersIndex,$Containers :=$Pod.Containers}}
+                                        <td>{{$Containers.Name}}</td>
+                                    {{if $Containers.Ready}}
+                                        <td style="background-color:#00ff00">{{$Containers.Ready }}</td>
+                                        <td>{{$Containers.RestartCount}}</td>
+                                        <td style="text-align:left;">
+                                             <p>
+                                            <form action="/k8s/podLogTerminal" method="get">
+                                                <input type="text" name="actionRoutingKey"  value="{{$root.Env.ActionRoutingKey}}" style="display:none">
+                                                <input type=text name=namespace value="{{$Pod.PodNamespace}}" style="display:none" >
+                                                <input type=text name=podName value={{$Pod.PodName}} style="display:none" >
+                                                <input type=text name=containerName value={{$Containers.Name}} style="display:none" >
+                                                <input type=text name=timeout value="120" style="display:none" >
+                                                <input type="submit" title="默认情况下可以持续查看{{$Containers.Name}}容器120s，可以修改地址栏参数修改"  value="查看{{$Containers.Name}}容器日志">
+                                            </form>
+                                            </p>
+                                            <p>
+                                            <form action="/k8s/terminal" method="get">
+                                                <input type=text name=namespace value="{{$Pod.PodNamespace}}" style="display:none" >
+                                                <input type=text name=podName value={{$Pod.PodName}} style="display:none" >
+                                                <input type=text name=containerName value={{$Containers.Name}} style="display:none" >
+                                                <input type="text" name="actionRoutingKey"  value="{{$root.Env.ActionRoutingKey}}" style="display:none">
+                                                <input type="submit" title="点击后可以直接通过WEB连接到{{$Containers.Name}}容器执行命令"   value="进入{{$Containers.Name}}容器执行命令">
+                                            </form>
+                                             </p>
+                                        </td>
+
+                                        {{if ge  $Containers.ContainerNo $containerCountTotal}}
+                                                </tr>
+                                         {{else if gt $containerCountTotal 1 }}
+                                                </tr>
+                                                <tr>
+                                        {{end}}
+                                    {{else}}
+                                        <td style="background-color:#ff0000">{{$Containers.Ready }}</td>
+                                        <td>{{$Containers.RestartCount}}</td>
+                                        <td style="text-align:left;">
+                                            <form action="/k8s/podLog" method="get">
+                                                <input type="text" name="routingKey"  value="{{$root.Env.LogRoutingKey}}" style="display:none">
+                                                <input type=text name=namespace value="{{$Pod.PodNamespace}}" style="display:none" >
+                                                <input type=text name=podName value={{$Pod.PodName}} style="display:none" >
+                                                <input type=text name=containerName value={{$Containers.Name}} style="display:none" >
+                                                <input type=text name=timeout value="120" style="display:none" >
+                                                <input type="submit" title="默认情况下可以持续查看{{$Containers.Name}}容器120s，可以修改地址栏参数修改"   value="查看{{$Containers.Name}}容器日志">
+                                            </form>
+                                        </td>
+                                        {{if ge  $Containers.ContainerNo $containerCountTotal}}
+                                            </tr>
+                                        {{else if gt $containerCountTotal 1 }}
+                                            </tr>
+                                            <tr>
+                                        {{end}}
+                                    {{end}}
+                                {{end}}
+                             {{else}}
+                                <td rowspan=1>{{$Pod.PodName}}</td>
+                                <td rowspan=1>{{$Pod.PodStatus}}</td>
+                                <td rowspan=1>{{$Pod.PodCreateTime}}</td>
+                                 <td>/</td>
+                                 <td>/</td>
+                                 <td>/</td>
+                                 <td>/</td>
+                                 <td>/</td>
+                                 </tr>
+                            {{end}}
+                        {{end}}
+                    {{end}}
+        {{else}}
+            <td>/</td>
+            <td>/</td>
+            <td>/</td>
+            <td>/</td>
+            <td>/</td>
+            <td>/</td>
+            <td>/</td>
+            <td>/</td>
+        {{end}}
+    {{end}}
+</table>

@@ -1,0 +1,81 @@
+{{/*<h2 style="color:rgb(111, 0, 255)">Docker Ps</h2>*/}}
+{{/*{{.|print}}?*/}}
+{{/*<table border="4" style="color:rgb(111,0,255);height:40px;width:100%;font-size:13px;">*/}}
+{{/*{{.Env.RoutingKey}}*/}}
+{{$root := .}}
+
+<table border="1" cellspacing="0" cellpadding="5" align="center" width="100%">
+{{/*    <caption><strong>docker ps -a</strong></caption>*/}}
+
+{{/*    <colgroup span="2" bgcolor="lightgreen">*/}}
+{{/*        <col bgcolor="lightgray">*/}}
+{{/*        <col>*/}}
+{{/*    </colgroup>*/}}
+{{/*    <colgroup span="1" bgcolor="cyan"></colgroup>*/}}
+    <tr bgcolor="skyblue">
+        <th colspan=12>docker ps -a</th>
+    </tr>
+    <tr bgcolor="skyblue">
+        <th>序号</th>
+        <th>ID</th>
+        <th>IMAGE</th>
+        <th>COMMAND</th>
+        <th>CREATED</th>
+        <th>STATUS</th>
+        <th>PORTS</th>
+        <th>NAMES</th>
+        <th>State</th>
+        <th  >操作</th>
+    </tr>
+    {{range $index,$value :=.Result.containers}}
+{{/*        <colgroup span="1" bgcolor="lightgreen"></colgroup>*/}}
+        <colgroup span="1" bgcolor="lightyellow"></colgroup>
+        <tr>
+            <td>{{$index}}</td>
+            <td>{{$value.ID}}</td>
+            <td>{{$value.Image}}</td>
+            <td>{{$value.Command}}</td>
+            <td>{{$value.Create}}</td>
+            <td>{{$value.Status}}</td>
+            <td>
+                {{range $index2,$value2 :=$value.Ports}}
+                    <p>{{$value2.Type}} {{$value2.IP}}:{{$value2.PublicPort}}->{{$value2.IP}}:{{$value2.PrivatePort}}</p>
+                {{end}}</td>
+            <td>{{$value.Name}}</td>
+            <td>{{$value.State}}</td>
+            <td>
+                <p>
+                    <form action="/docker/dockerLogTerminal" method="get">
+                    <input type="text" name="actionRoutingKey"  value="{{$root.Env.ActionRoutingKey}}" style="display:none">
+                        <input type=text name=containerName value={{$value.Name}} style="display:none" >
+                        <input type=text name=timeout value="30" style="display:none" >
+                        <input type="submit"   value="查看{{$value.Name}}日志">
+                    </form>
+                </p>
+                <p>
+                <form action="/docker/restartDocker" method="get">
+                    <input type="text" name="routingKey"  value="{{$root.Env.ActionRoutingKey}}" style="display:none">
+                    <input type=text name=containerName value="{{$value.Name}}" style="display:none" >
+                    <input type=text name=timeout value="3" style="display:none" >
+                    <input type="submit"  value="重启{{$value.Name}}容器">
+                </form>
+                </p>
+                <p>
+                <form action="/docker/deleteDocker" method="get">
+                    <input type="text" name="routingKey"  value="{{$root.Env.ActionRoutingKey}}" style="display:none">
+                    <input type=text name=containerName value={{$value.Name}} style="display:none" >
+                    <input type=text name=timeout value="3" style="display:none" >
+                    <input type="submit"   value="删除{{$value.Name}}容器">
+                </form>
+                </p>
+                <form action="/docker/terminal" method="get">
+                    <input type="text" name="actionRoutingKey"  value="{{$root.Env.ActionRoutingKey}}" style="display:none">
+                    <input type=text name=containerName value={{$value.Name}} style="display:none" >
+                    <input type=text name=timeout value="3" style="display:none" >
+                    <input type="submit"   value="进入{{$value.Name}}容器执行命令">
+                </form>
+                </p>
+            </td>
+        </tr>
+    {{end}}
+</table>

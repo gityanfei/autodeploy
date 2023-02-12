@@ -1,0 +1,38 @@
+log:
+  mode: info
+  logconfig:
+     level: "debug"
+     filename: "app.log"
+     maxsize: 200
+     maxage: 7
+     maxbackups: 10
+
+# 用来配置不同的项目应该把镜像推送到不同的公网仓库上去，使用name字段区分不同推送仓库
+repoInfo:
+  - name: test
+    domain: registry.cn-beijing.aliyuncs.com
+    dockerRepo:
+    user:
+project:
+  - name: test
+    desc: "测试环境"
+    actionRoutingKey: test-action-routingkey
+    logRoutingKey: test-log-routingkey
+    namespace: idaas
+    dingdingConfig:
+      dingdingMessage: true
+      dingdingURL: https://oapi.dingtalk.com/robot/send
+      dingdingAccessToken:
+      dingdingSign:
+      dingdingMessageHead: 测试环境
+      dingdingMessageTail: 版本已部署请检查部署结果
+# 识别环境参数时应该读取的url参数
+env: env
+#rabbitmq连接参数
+rabbitmq:
+  user:
+  password:
+  hostPort:
+  exchange:
+  taskExchange:
+  timeout:
